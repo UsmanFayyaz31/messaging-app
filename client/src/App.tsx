@@ -1,35 +1,36 @@
-import React, { ElementType } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import React from "react";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import 'react-toastify/dist/ReactToastify.css';
 
 import "./App.css";
 import Layout from "./components/Layout";
-import { ABOUT_US, HOME, SIGN_IN } from "./components/services/constants";
-import LoginSignup from "./pages/authentication/LoginSignup";
-import Home from "./pages/authenticated/Home";
-import AboutUs from "./pages/unAuthenticatedRoutes/AboutUs";
-
-interface PrivateOutletProps {
-  isAuthProtected: boolean;
-  Component: ElementType;
-  Layout: ElementType;
-}
+import {
+  ABOUT_US,
+  HOME,
+  LOG_IN,
+  SIGN_UP,
+} from "./components/services/constants";
+import SignUp from "./pages/SignUp/SignUp";
+import Home from "./pages/Home/Home";
+import AboutUs from "./pages/AboutUs/AboutUs";
+import LogIn from "./pages/LogIn/LogIn";
+import { PrivateOutletProps } from "./types";
 
 const PrivateOutlet = ({
   isAuthProtected,
   Component,
   Layout,
 }: PrivateOutletProps) => {
+  let location = useLocation();
   if (isAuthProtected && !localStorage.getItem("authUser")) {
-    return <Navigate to={SIGN_IN} />;
-  }
-  // else if (
-  //   !isAuthProtected &&
-  //   location.pathname === SIGN_IN &&
-  //   localStorage.getItem("authUser")
-  // ) {
-  //   return <Navigate to={HOME} />;
-  // }
-  else
+    return <Navigate to={LOG_IN} />;
+  } else if (
+    !isAuthProtected &&
+    (location.pathname === LOG_IN || location.pathname === SIGN_UP) &&
+    localStorage.getItem("authUser")
+  ) {
+    return <Navigate to={HOME} />;
+  } else
     return (
       <Layout>
         <Component />
@@ -42,10 +43,21 @@ const App = () => {
     //authentication routes
     <Routes>
       <Route
-        path={SIGN_IN}
+        path={SIGN_UP}
         element={
           <PrivateOutlet
-            Component={LoginSignup}
+            Component={SignUp}
+            Layout={Layout}
+            isAuthProtected={false}
+          />
+        }
+      />
+
+      <Route
+        path={LOG_IN}
+        element={
+          <PrivateOutlet
+            Component={LogIn}
             Layout={Layout}
             isAuthProtected={false}
           />

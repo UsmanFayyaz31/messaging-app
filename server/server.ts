@@ -1,11 +1,11 @@
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
-import session from "express-session";
-import passport from "passport";
+// import cookieParser from "cookie-parser";
 
 import "./loadEnviornment";
-import users from "./routes/user";
+import users from "./Routes/user";
+import authRoute from "./Routes/AuthRoute";
 
 const connectionString = process.env.ATLAS_URI || "";
 
@@ -20,37 +20,16 @@ const PORT = process.env.PORT || 5050;
 const app = express();
 
 app.use(
-  session({
-    secret: "Our little secret.",
-    resave: false,
-    saveUninitialized: false,
+  cors({
+    origin: ["http://localhost:3000"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
   })
 );
-
-app.use(passport.initialize());
-app.use(passport.session());
-app.use(cors());
 app.use(express.json());
 
+app.use("/", authRoute);
 app.use("/user", users);
-
-app.get(
-  "/auth/google",
-  passport.authenticate("google", { scope: ["profile"] })
-);
-
-app.get(
-  "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "http://localhost:3000" }),
-  function (req, res) {
-    // Successful authentication, redirect secrets.
-    res.redirect("http://localhost:3000");
-  }
-);
-
-app.get("/logout", function (req, res) {
-  res.redirect("http://localhost:3000/");
-});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port: ${PORT}`);
