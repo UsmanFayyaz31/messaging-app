@@ -4,12 +4,25 @@ import bcrypt from "bcrypt";
 const { Schema, model } = mongoose;
 
 const userSchema = new Schema({
-  username: String,
-  email: String,
+  username: {
+    type: String,
+    required: [true, "User name is required"],
+    unique: [true, "User name already exist"],
+  },
+  email: {
+    type: String,
+    required: [true, "Email is required"],
+    unique: [true, "Email already exist"],
+    match: [
+      /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+      "Please fill a valid email address",
+    ],
+  },
   password: {
     type: String,
-    required: [true, "Your password is required"],
+    required: [true, "Password is required"],
   },
+  profilePicture: String,
   createdAt: {
     type: Date,
     default: new Date(),

@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
-// import cookieParser from "cookie-parser";
 
 import "./loadEnviornment";
 import users from "./Routes/user";
@@ -26,7 +25,9 @@ app.use(
     credentials: true,
   })
 );
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use('/uploads', express.static('uploads'));
 
 app.use("/", authRoute);
 app.use("/user", users);
