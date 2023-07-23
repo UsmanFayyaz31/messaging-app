@@ -1,11 +1,6 @@
 import React, { useState } from "react";
 import {
-  AppBar,
-  Toolbar,
   Typography,
-  IconButton,
-  MenuItem,
-  Menu,
   Container,
   Box,
   List,
@@ -15,21 +10,25 @@ import {
   ListItemText,
   Divider,
   TextField,
-  Paper,
 } from "@mui/material";
 import { AccountCircle, Send as SendIcon } from "@mui/icons-material";
 
-interface User {
-  id: number;
-  name: string;
-  profilePicture: string;
-}
-
-interface Message {
-  id: number;
-  senderId: number;
-  content: string;
-}
+import { Message, User } from "./types";
+import {
+  StyledAppBar,
+  StyledToolbar,
+  StyledTypography,
+  StyledIconButton,
+  StyledMenu,
+  StyledMenuItem,
+  ChatBoxHeader,
+  SelectedUserName,
+  ChatBox,
+  MessageContainer,
+  MessagePaper,
+  MessageInputContainer,
+  SendButton,
+} from "./HomeStyles";
 
 const users: User[] = [
   { id: 1, name: "User 1", profilePicture: "user1.jpg" },
@@ -78,21 +77,18 @@ const HomePage: React.FC = () => {
 
   return (
     <div>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" component="div" style={{ flexGrow: 1 }}>
-            Messaging App
-          </Typography>
-          <IconButton
+      <StyledAppBar position="static">
+        <StyledToolbar>
+          <StyledTypography variant="h6">Messaging App</StyledTypography>
+          <StyledIconButton
             size="large"
             edge="end"
             color="inherit"
             onClick={handleMenuOpen}
-            style={{ marginLeft: 2 }}
           >
             <AccountCircle />
-          </IconButton>
-          <Menu
+          </StyledIconButton>
+          <StyledMenu
             anchorEl={anchorEl}
             open={Boolean(anchorEl)}
             onClose={handleMenuClose}
@@ -105,10 +101,13 @@ const HomePage: React.FC = () => {
               horizontal: "right",
             }}
           >
-            <MenuItem onClick={handleMenuClose}>Account Settings</MenuItem>
-          </Menu>
-        </Toolbar>
-      </AppBar>
+            <StyledMenuItem onClick={handleMenuClose}>
+              Account Settings
+            </StyledMenuItem>
+          </StyledMenu>
+        </StyledToolbar>
+      </StyledAppBar>
+
       <Container>
         <Box display="flex" mt={2}>
           <Box width="25%" pr={2}>
@@ -136,75 +135,39 @@ const HomePage: React.FC = () => {
           <Box flex={1} pl={2}>
             {selectedUser ? (
               <div>
-                <Box
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    marginBottom: 2,
-                  }}
-                >
+                <ChatBoxHeader>
                   <Avatar
                     alt={selectedUser.name}
                     src={selectedUser.profilePicture}
                   />
-                  <Typography
-                    variant="h6"
-                    component="div"
-                    style={{ marginLeft: 2 }}
-                  >
+                  <SelectedUserName variant="h6">
                     {selectedUser.name}
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    border: "1px solid",
-                    borderColor: "grey.300",
-                    minHeight: 200,
-                    mt: 2,
-                    p: 2,
-                    overflowY: "auto",
-                  }}
-                >
+                  </SelectedUserName>
+                </ChatBoxHeader>
+                <ChatBox>
                   {messages.map((message) => (
-                    <div
+                    <MessageContainer
                       key={message.id}
-                      style={{
-                        display: "flex",
-                        flexDirection:
-                          message.senderId === selectedUser.id
-                            ? "row-reverse"
-                            : "row",
-                        marginBottom: "10px",
-                      }}
+                      message={message}
+                      selectedUser={selectedUser}
                     >
                       <Avatar
                         alt={selectedUser.name}
                         src={selectedUser.profilePicture}
                       />
-                      <Paper
-                        style={{
-                          padding: "10px",
-                          display: "inline-block",
-                          maxWidth: "70%",
-                          alignSelf: "flex-end",
-                          backgroundColor:
-                            message.senderId === selectedUser.id
-                              ? "#dcf8c6"
-                              : "#fff",
-                          marginLeft:
-                            message.senderId === selectedUser.id ? "0" : "10px",
-                          marginRight:
-                            message.senderId === selectedUser.id ? "10px" : "0",
-                        }}
+                      <MessagePaper
+                        message={message}
+                        selectedUser={selectedUser}
                       >
                         <Typography variant="body1">
                           {message.content}
                         </Typography>
-                      </Paper>
-                    </div>
+                      </MessagePaper>
+                    </MessageContainer>
                   ))}
-                </Box>
-                <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
+                </ChatBox>
+
+                <MessageInputContainer>
                   <TextField
                     value={messageInput}
                     onChange={handleMessageInputChange}
@@ -212,15 +175,14 @@ const HomePage: React.FC = () => {
                     variant="outlined"
                     fullWidth
                   />
-                  <IconButton
+                  <SendButton
                     size="large"
                     color="primary"
                     onClick={handleSendMessage}
-                    style={{ marginLeft: 2 }}
                   >
                     <SendIcon />
-                  </IconButton>
-                </Box>
+                  </SendButton>
+                </MessageInputContainer>
               </div>
             ) : (
               <Typography variant="body1" color="text.secondary">
