@@ -29,8 +29,16 @@ const userSchema = new Schema({
   },
 });
 
-userSchema.pre("save", async function () {
-  this.password = await bcrypt.hash(this.password, 12);
+userSchema.pre("save", function (next) {
+  bcrypt
+    .hash(this.password!, 12)
+    .then((hashedPassword) => {
+      this.password = hashedPassword;
+      next();
+    })
+    .catch((error) => {
+      next(error);
+    });
 });
 
 export default model("User", userSchema);
