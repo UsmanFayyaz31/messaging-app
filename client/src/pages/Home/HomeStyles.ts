@@ -29,7 +29,7 @@ export const ChatBox = styled(Box)(({ theme }) => ({
 export const MessageContainer = styled("div")<DynamicStyledProps>(
   ({ theme, message, selectedUser }) => ({
     display: "flex",
-    flexDirection: message.senderId === selectedUser._id ? "row-reverse" : "row",
+    flexDirection: message.sender === selectedUser._id ? "row" : "row-reverse",
     marginBottom: theme.spacing(2),
   })
 );
@@ -40,9 +40,9 @@ export const MessagePaper = styled(Paper)<DynamicStyledProps>(
     display: "inline-block",
     maxWidth: "70%",
     alignSelf: "flex-end",
-    backgroundColor: message.senderId === selectedUser._id ? "#dcf8c6" : "#fff",
-    marginLeft: message.senderId === selectedUser._id ? "0" : "10px",
-    marginRight: message.senderId === selectedUser._id ? "10px" : "0",
+    backgroundColor: message.sender === selectedUser._id ? "#fff" : "#dcf8c6",
+    marginLeft: message.sender === selectedUser._id ? "10px" : "0",
+    marginRight: message.sender === selectedUser._id ? "0" : "10px",
   })
 );
 
@@ -55,6 +55,14 @@ export const MessageInputContainer = styled(Box)(({ theme }) => ({
 export const SelectedUserName = styled(Typography)({
   marginLeft: 6,
 });
+
+export const TimeStamp = styled(Typography)<DynamicStyledProps>(
+  ({ message, selectedUser }) => ({
+    float: message.sender === selectedUser._id ? "left" : "right",
+    fontSize: "0.6rem",
+    color: "gray",
+  })
+);
 
 export const SendButton = styled(IconButton)({
   marginLeft: 2,

@@ -1,11 +1,11 @@
 import bcrypt from "bcrypt";
 import multer from "multer";
 import path from "path";
-import { Request, Response, NextFunction } from "express";
 
 import { createSecretToken } from "../util/SecretToken";
 import User from "../Models/UserModel";
-import { MyResponseType, UserResponseType, RoutesMiddlewareType } from "./types";
+import { MyResponseType, RoutesMiddlewareType } from "../types/CommonTypes";
+import { UserResponseType } from "../types/AuthControllerTypes";
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
