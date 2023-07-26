@@ -11,8 +11,8 @@ export interface LogInResponse {
     username: string;
     createdAt: string;
     id: string;
+    token: string;
   };
-  token: string;
 }
 
 export interface LogInFormData {

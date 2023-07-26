@@ -5,7 +5,7 @@ import { Request, Response, NextFunction } from "express";
 
 import { createSecretToken } from "../util/SecretToken";
 import User from "../Models/UserModel";
-import { MyResponseType, UserResponseType, RoutesMiddleware } from "./types";
+import { MyResponseType, UserResponseType, RoutesMiddlewareType } from "./types";
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-export const Signup: RoutesMiddleware = (req, res, next) => {
+export const Signup: RoutesMiddlewareType = (req, res, next) => {
   upload.single("profilePicture")(req, res, (err) => {
     if (err) {
       console.error("Error uploading profile picture:", err);
@@ -58,7 +58,7 @@ export const Signup: RoutesMiddleware = (req, res, next) => {
   });
 };
 
-export const Login: RoutesMiddleware = (req, res, next) => {
+export const Login: RoutesMiddlewareType = (req, res, next) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {

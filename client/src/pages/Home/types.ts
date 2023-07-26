@@ -1,6 +1,6 @@
 export interface User {
-  id: number;
-  name: string;
+  _id: number;
+  username: string;
   profilePicture: string;
 }
 
@@ -13,4 +13,10 @@ export interface Message {
 export interface DynamicStyledProps {
   message: Message;
   selectedUser: User;
+}
+
+export interface GetFriendsResponse {
+  message: string;
+  success: boolean;
+  response: User[];
 }

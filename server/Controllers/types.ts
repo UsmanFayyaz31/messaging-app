@@ -1,6 +1,14 @@
 import { Request, Response, NextFunction } from "express";
 
-export type RoutesMiddleware = (
+declare module "express-serve-static-core" {
+  interface Request {
+    user: {
+      id: string;
+    };
+  }
+}
+
+export type RoutesMiddlewareType = (
   req: Request,
   res: Response,
   next: NextFunction
@@ -20,3 +28,13 @@ export type MyResponseType<T> = {
   success: boolean;
   response: T;
 };
+
+export interface UserData {
+  id?: string;
+  username?: string;
+  profilePicture?: string;
+}
+
+export interface GetFriendsResponse {
+  users: UserData[];
+}
