@@ -14,7 +14,14 @@ import {
 import { AccountCircle, Send as SendIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
-import { GetFriendsResponse, Message, User } from "./types";
+import {
+  CreateMessagePayload,
+  CreateMessageResponse,
+  GetFriendsResponse,
+  Message,
+  MessagesListResponse,
+  User,
+} from "./types";
 import {
   StyledAppBar,
   StyledToolbar,
@@ -29,20 +36,15 @@ import {
   MessagePaper,
   MessageInputContainer,
   SendButton,
+  TimeStamp,
 } from "./HomeStyles";
 import {
   BASE_URL,
   GET_FRIENDS,
   LOG_IN,
+  MESSAGES,
 } from "../../components/services/constants";
-import { ServerResponse, getRequest } from "../../components/services/server";
-
-const messages: Message[] = [
-  { id: 1, senderId: 1, content: "Hello" },
-  { id: 2, senderId: 2, content: "Hi" },
-  { id: 3, senderId: 1, content: "How are you?" },
-  // Add more messages as needed
-];
+import { getRequest, postRequest } from "../../components/services/server";
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -52,6 +54,7 @@ const HomePage: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [friends, setFriends] = useState<User[]>([]);
   const [messageInput, setMessageInput] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -61,8 +64,19 @@ const HomePage: React.FC = () => {
     setAnchorEl(null);
   };
 
+  const getMessagesForSelectedUser = (user: User) => {
+    getRequest<MessagesListResponse>(`${MESSAGES}${user._id}`)
+      .then((messages) => {
+        setMessages(messages.data.response);
+      })
+      .catch((error) => {
+        console.log("error", error);
+      });
+  };
+
   const handleUserSelect = (user: User) => {
     setSelectedUser(user);
+    getMessagesForSelectedUser(user);
   };
 
   const handleMessageInputChange = (
@@ -72,9 +86,20 @@ const HomePage: React.FC = () => {
   };
 
   const handleSendMessage = () => {
-    if (messageInput.trim() !== "") {
-      // Send the message
-      console.log(`Sending message: ${messageInput}`);
+    if (messageInput.trim() !== "" && selectedUser) {
+      postRequest<CreateMessagePayload, CreateMessageResponse>(MESSAGES, {
+        receiver: selectedUser._id,
+        content: messageInput,
+      })
+        .then((result) => {
+          if (result.status === 201) {
+            getMessagesForSelectedUser(selectedUser);
+          }
+        })
+        .catch((error) => {
+          console.log("error", error);
+        });
+
       setMessageInput("");
     }
   };
@@ -95,7 +120,7 @@ const HomePage: React.FC = () => {
     }
 
     getRequest<GetFriendsResponse>(GET_FRIENDS)
-      .then((result: ServerResponse<GetFriendsResponse>) => {
+      .then((result) => {
         setFriends(result.data.response);
       })
       .catch((error) => {
@@ -176,7 +201,7 @@ const HomePage: React.FC = () => {
                 <ChatBoxHeader>
                   <Avatar
                     alt={selectedUser.username}
-                    src={selectedUser.profilePicture}
+                    src={`${BASE_URL}uploads/${selectedUser.profilePicture}`}
                   />
                   <SelectedUserName variant="h6">
                     {selectedUser.username}
@@ -191,7 +216,11 @@ const HomePage: React.FC = () => {
                     >
                       <Avatar
                         alt={selectedUser.username}
-                        src={selectedUser.profilePicture}
+                        src={
+                          message.sender === selectedUser._id
+                            ? `${BASE_URL}uploads/${selectedUser.profilePicture}`
+                            : `${BASE_URL}uploads/${user?.profilePicture}`
+                        }
                       />
                       <MessagePaper
                         message={message}
@@ -200,6 +229,15 @@ const HomePage: React.FC = () => {
                         <Typography variant="body1">
                           {message.content}
                         </Typography>
+                        <TimeStamp
+                          variant="caption"
+                          message={message}
+                          selectedUser={selectedUser}
+                        >
+                          {new Date(message.timestamp).toLocaleDateString() +
+                            " - " +
+                            new Date(message.timestamp).toLocaleTimeString()}
+                        </TimeStamp>
                       </MessagePaper>
                     </MessageContainer>
                   ))}

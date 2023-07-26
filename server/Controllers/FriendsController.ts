@@ -1,5 +1,6 @@
 import User from "../Models/UserModel";
-import { UserData, MyResponseType, RoutesMiddlewareType } from "./types";
+import { UserData } from "../types/AuthControllerTypes";
+import { MyResponseType, RoutesMiddlewareType } from "../types/CommonTypes";
 
 export const getFriends: RoutesMiddlewareType = (req, res) => {
     const requestUserId = req.user.id;

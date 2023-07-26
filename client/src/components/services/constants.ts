@@ -11,6 +11,7 @@ export const HOME = "/";
 export const ABOUT_US = "/about-us";
 
 //endPoints
-export const SIGN_UP_API = BASE_URL + "signup/"
-export const LOG_IN_API = BASE_URL + "login/"
-export const GET_FRIENDS = BASE_URL + "get-friends/"
+export const SIGN_UP_API = BASE_URL + "signup/";
+export const LOG_IN_API = BASE_URL + "login/";
+export const GET_FRIENDS = BASE_URL + "friends/";
+export const MESSAGES = BASE_URL + "messages/";
