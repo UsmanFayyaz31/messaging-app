@@ -29,7 +29,7 @@ export const ChatBox = styled(Box)(({ theme }) => ({
 export const MessageContainer = styled("div")<DynamicStyledProps>(
   ({ theme, message, selectedUser }) => ({
     display: "flex",
-    flexDirection: message.senderId === selectedUser.id ? "row-reverse" : "row",
+    flexDirection: message.senderId === selectedUser._id ? "row-reverse" : "row",
     marginBottom: theme.spacing(2),
   })
 );
@@ -40,9 +40,9 @@ export const MessagePaper = styled(Paper)<DynamicStyledProps>(
     display: "inline-block",
     maxWidth: "70%",
     alignSelf: "flex-end",
-    backgroundColor: message.senderId === selectedUser.id ? "#dcf8c6" : "#fff",
-    marginLeft: message.senderId === selectedUser.id ? "0" : "10px",
-    marginRight: message.senderId === selectedUser.id ? "10px" : "0",
+    backgroundColor: message.senderId === selectedUser._id ? "#dcf8c6" : "#fff",
+    marginLeft: message.senderId === selectedUser._id ? "0" : "10px",
+    marginRight: message.senderId === selectedUser._id ? "10px" : "0",
   })
 );
 

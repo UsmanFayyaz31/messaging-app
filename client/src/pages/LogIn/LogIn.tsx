@@ -34,7 +34,7 @@ const LogIn: React.FC = () => {
 
         if (data.success) {
           localStorage.setItem("authUser", JSON.stringify(data.response));
-          localStorage.setItem("token", JSON.stringify(data.token));
+          localStorage.setItem("t", data.response.token);
 
           navigate(HOME);
         } else handleError(data.message);

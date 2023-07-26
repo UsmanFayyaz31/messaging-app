@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Typography,
   Container,
@@ -12,8 +12,9 @@ import {
   TextField,
 } from "@mui/material";
 import { AccountCircle, Send as SendIcon } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 
-import { Message, User } from "./types";
+import { GetFriendsResponse, Message, User } from "./types";
 import {
   StyledAppBar,
   StyledToolbar,
@@ -29,13 +30,12 @@ import {
   MessageInputContainer,
   SendButton,
 } from "./HomeStyles";
-
-const users: User[] = [
-  { id: 1, name: "User 1", profilePicture: "user1.jpg" },
-  { id: 2, name: "User 2", profilePicture: "user2.jpg" },
-  { id: 3, name: "User 3", profilePicture: "user3.jpg" },
-  // Add more users as needed
-];
+import {
+  BASE_URL,
+  GET_FRIENDS,
+  LOG_IN,
+} from "../../components/services/constants";
+import { ServerResponse, getRequest } from "../../components/services/server";
 
 const messages: Message[] = [
   { id: 1, senderId: 1, content: "Hello" },
@@ -45,8 +45,12 @@ const messages: Message[] = [
 ];
 
 const HomePage: React.FC = () => {
+  const navigate = useNavigate();
+
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [friends, setFriends] = useState<User[]>([]);
   const [messageInput, setMessageInput] = useState("");
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -75,6 +79,30 @@ const HomePage: React.FC = () => {
     }
   };
 
+  const logOut = () => {
+    localStorage.removeItem("authUser");
+    localStorage.removeItem("t");
+    navigate(LOG_IN);
+  };
+
+  useEffect(() => {
+    let user = localStorage.getItem("authUser");
+
+    if (user) {
+      let userData = JSON.parse(user);
+
+      setUser(userData);
+    }
+
+    getRequest<GetFriendsResponse>(GET_FRIENDS)
+      .then((result: ServerResponse<GetFriendsResponse>) => {
+        setFriends(result.data.response);
+      })
+      .catch((error) => {
+        console.log("Error", error);
+      });
+  }, []);
+
   return (
     <div>
       <StyledAppBar position="static">
@@ -86,24 +114,31 @@ const HomePage: React.FC = () => {
             color="inherit"
             onClick={handleMenuOpen}
           >
-            <AccountCircle />
+            {user?.profilePicture ? (
+              <Avatar
+                src={`${BASE_URL}uploads/${user.profilePicture}`}
+                alt="profile"
+              />
+            ) : (
+              <Avatar>
+                <AccountCircle />
+              </Avatar>
+            )}
           </StyledIconButton>
           <StyledMenu
             anchorEl={anchorEl}
             open={Boolean(anchorEl)}
             onClose={handleMenuClose}
             anchorOrigin={{
-              vertical: "top",
-              horizontal: "right",
+              vertical: "bottom",
+              horizontal: "center",
             }}
             transformOrigin={{
               vertical: "top",
-              horizontal: "right",
+              horizontal: "center",
             }}
           >
-            <StyledMenuItem onClick={handleMenuClose}>
-              Account Settings
-            </StyledMenuItem>
+            <StyledMenuItem onClick={logOut}>Log Out</StyledMenuItem>
           </StyledMenu>
         </StyledToolbar>
       </StyledAppBar>
@@ -115,17 +150,20 @@ const HomePage: React.FC = () => {
               Users
             </Typography>
             <List>
-              {users.map((user) => (
-                <div key={user.id}>
+              {friends.map((user) => (
+                <div key={user._id}>
                   <ListItem
                     button
-                    selected={selectedUser?.id === user.id}
+                    selected={selectedUser?._id === user._id}
                     onClick={() => handleUserSelect(user)}
                   >
                     <ListItemAvatar>
-                      <Avatar alt={user.name} src={user.profilePicture} />
+                      <Avatar
+                        alt={user.username}
+                        src={`${BASE_URL}uploads/${user.profilePicture}`}
+                      />
                     </ListItemAvatar>
-                    <ListItemText primary={user.name} />
+                    <ListItemText primary={user.username} />
                   </ListItem>
                   <Divider />
                 </div>
@@ -137,11 +175,11 @@ const HomePage: React.FC = () => {
               <div>
                 <ChatBoxHeader>
                   <Avatar
-                    alt={selectedUser.name}
+                    alt={selectedUser.username}
                     src={selectedUser.profilePicture}
                   />
                   <SelectedUserName variant="h6">
-                    {selectedUser.name}
+                    {selectedUser.username}
                   </SelectedUserName>
                 </ChatBoxHeader>
                 <ChatBox>
@@ -152,7 +190,7 @@ const HomePage: React.FC = () => {
                       selectedUser={selectedUser}
                     >
                       <Avatar
-                        alt={selectedUser.name}
+                        alt={selectedUser.username}
                         src={selectedUser.profilePicture}
                       />
                       <MessagePaper

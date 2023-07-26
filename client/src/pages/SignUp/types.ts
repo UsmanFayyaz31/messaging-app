@@ -1,9 +1,3 @@
-export interface SignUpRequestPayload {
-  email: string;
-  password: string;
-  username: string;
-}
-
 export interface SignUpResponse {
   message: string;
   success: boolean;
@@ -12,13 +6,14 @@ export interface SignUpResponse {
     username: string;
     createdAt: string;
     id: string;
+    token: string;
   };
-  token: string;
 }
 
-export interface SignupFormData {
+export interface SignUpFormData {
   username: string;
   email: string;
   password: string;
   confirmPassword: string;
+  profilePicture: File | null;
 }

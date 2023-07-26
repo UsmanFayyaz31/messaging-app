@@ -1,11 +1,11 @@
-import React from "react";
+import React, { ChangeEvent, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { TextField, Button, Typography, Box, Link } from "@mui/material";
 
 import { SignUpFormContainer } from "./SignUpStyles";
-import { SignUpRequestPayload, SignUpResponse, SignupFormData } from "./types";
+import { SignUpResponse, SignUpFormData } from "./types";
 import { HOME, LOG_IN, SIGN_UP_API } from "../../components/services/constants";
 import {
   ServerResponse,
@@ -18,24 +18,32 @@ const SignUp: React.FC = () => {
     control,
     formState: { errors },
     watch,
-  } = useForm<SignupFormData>();
+  } = useForm<SignUpFormData>();
+
   const navigate = useNavigate();
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
-  const onSubmit = (data: SignupFormData) => {
-    const payload: SignUpRequestPayload = {
-      ...data,
-    };
+  const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    setSelectedImage(file || null);
+  };
 
-    postRequestWithoutToken<SignUpRequestPayload, SignUpResponse>(
-      SIGN_UP_API,
-      payload
-    )
+  const onSubmit = (data: SignUpFormData) => {
+    const formData = new FormData();
+    formData.append("username", data.username);
+    formData.append("email", data.email);
+    formData.append("password", data.password);
+    if (selectedImage) {
+      formData.append("profilePicture", selectedImage, selectedImage.name);
+    }
+
+    postRequestWithoutToken<FormData, SignUpResponse>(SIGN_UP_API, formData)
       .then((result: ServerResponse<SignUpResponse>) => {
         const data = result.data;
 
         if (data.success) {
           localStorage.setItem("authUser", JSON.stringify(data.response));
-          localStorage.setItem("token", JSON.stringify(data.token));
+          localStorage.setItem("t", data.response.token);
 
           navigate(HOME);
         } else handleError(data.message);
@@ -134,6 +142,8 @@ const SignUp: React.FC = () => {
             />
           )}
         />
+
+        <input type="file" onChange={handleImageChange} />
 
         <Box textAlign="center" style={{ marginTop: "10px" }}>
           <Button type="submit" variant="contained" color="primary">
